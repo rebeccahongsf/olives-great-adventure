@@ -1,0 +1,50 @@
+import type { NpcDef } from '../types'
+
+export const NPCS: Record<string, NpcDef> = {
+  dad: {
+    id: 'dad',
+    locationId: 'kitchen',
+    name: 'Dad',
+    x: 300,
+    y: 200,
+    color: 0x457b9d,
+    dialogTreeId: 'dadKitchen',
+  },
+  sister: {
+    id: 'sister',
+    locationId: 'sistersBedroom',
+    name: 'Sister',
+    x: 550,
+    y: 200,
+    color: 0xe76f51,
+    dialogTreeId: 'sisterBedroom',
+  },
+  axel: {
+    id: 'axel',
+    locationId: 'livingRoom',
+    name: 'Axel',
+    x: 250,
+    y: 450,
+    color: 0x9c6644,
+    dialogTreeId: 'axelLivingRoom',
+    followsPlayer: true,
+  },
+  mom: {
+    id: 'mom',
+    locationId: 'dogPark',
+    name: 'Mom',
+    x: 700,
+    y: 300,
+    color: 0xb5838d,
+    dialogTreeId: 'momDogPark',
+  },
+  olive: {
+    id: 'olive',
+    locationId: 'finale',
+    name: 'Olive',
+    x: 400,
+    y: 300,
+    color: 0xffe066,
+    dialogTreeId: 'oliveFinale',
+  },
+}

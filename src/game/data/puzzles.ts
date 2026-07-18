@@ -1,0 +1,58 @@
+import type { PuzzleDef } from '../types'
+
+export const PUZZLES: Record<string, PuzzleDef> = {
+  bedroomPuzzle: {
+    id: 'bedroomPuzzle',
+    locationId: 'bedroom',
+    name: 'Find the Tissue Box',
+    description: 'Olive loves stealing tissues. Find the box she was playing with.',
+    requiredItemIds: ['tissueBox'],
+    rewardMemoryId: 'tissueBoxPhoto',
+    completionHint: 'Olive must have went to the backyard to potty.',
+  },
+  backyardPuzzle: {
+    id: 'backyardPuzzle',
+    locationId: 'backyard',
+    name: 'Collect the Toys',
+    description: 'Gather the rope and stuffed animal Olive scattered around the yard.',
+    requiredItemIds: ['rope', 'stuffedAnimal'],
+    rewardMemoryId: 'tahoeTrip',
+    completionHint: "I guess Olive is not here, let's go back inside and ask dad.",
+  },
+  kitchenPuzzle: {
+    id: 'kitchenPuzzle',
+    locationId: 'kitchen',
+    name: "Find Dad's Mug",
+    description: 'Help Dad find his coffee mug before he asks about Olive.',
+    requiredItemIds: ['coffeeMug'],
+    rewardMemoryId: 'disneylandTrip',
+    completionHint: 'Dad thinks Sister might know something. Check her room.',
+  },
+  sistersBedroomPuzzle: {
+    id: 'sistersBedroomPuzzle',
+    locationId: 'sistersBedroom',
+    name: 'Fix the Lego Figure',
+    description: 'Find the missing lego leg and complete the figure.',
+    requiredItemIds: ['legoLeg'],
+    rewardMemoryId: 'legoBuilding',
+    completionHint: 'Sister says to check the living room.',
+  },
+  livingRoomPuzzle: {
+    id: 'livingRoomPuzzle',
+    locationId: 'livingRoom',
+    name: 'Say Hi to Axel',
+    description: 'Axel showed up! See what he found.',
+    requiredItemIds: ['poohBear'],
+    rewardMemoryId: 'laVisit',
+    completionHint: 'Axel wants to show you the dog park!',
+  },
+  dogParkPuzzle: {
+    id: 'dogParkPuzzle',
+    locationId: 'dogPark',
+    name: "Find Olive's Toys",
+    description: 'Find the three dog toys scattered around the park.',
+    requiredItemIds: ['dogToy1', 'dogToy2', 'dogToy3'],
+    rewardMemoryId: 'axelOliveMeeting',
+    completionHint: "Everyone's here... now where's Olive?",
+  },
+}
