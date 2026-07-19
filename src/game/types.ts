@@ -12,6 +12,32 @@ export interface Vec2 {
   y: number
 }
 
+export interface Rect {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+// Furniture art is cropped to each piece's own bounding box (not a
+// full-canvas layer), so x/y is drawn directly at the piece's top-left —
+// the same top-left used by its blockedZones rect. sortY is the piece's
+// vertical center in room space: it sets draw depth so pieces closer to the
+// camera (larger sortY) render in front of pieces farther back, and lets the
+// player render behind or in front of a piece depending on which side of
+// sortY they're standing on.
+export interface FurnitureDef {
+  key: string
+  path: string
+  x: number
+  y: number
+  sortY: number
+}
+
+// x/y is the item's pickup hotspot: the pickup hitbox is centered there, and
+// (art is cropped to the item's own bounding box) it's also the sprite's
+// draw position, same as the flat-color fallback used when texturePath is
+// absent.
 export interface ItemDef {
   id: string
   locationId: LocationId
@@ -19,6 +45,20 @@ export interface ItemDef {
   x: number
   y: number
   color: number
+  texturePath?: string
+}
+
+// Doors reuse the furniture rendering path (cropped art, top-left position,
+// sortY depth) plus an optional SPACE-to-interact zone sized to the sprite.
+export interface DoorDef {
+  key: string
+  path: string
+  x: number
+  y: number
+  width: number
+  height: number
+  sortY: number
+  interactive?: boolean
 }
 
 export interface DialogChoice {
@@ -81,9 +121,14 @@ export interface LocationDef {
   width: number
   height: number
   backgroundColor: number
+  backgroundPath?: string
   playerSpawn: Vec2
   entryHint?: string
   items: string[]
   npcs: string[]
   puzzleId?: string
+  furniture?: FurnitureDef[]
+  doors?: DoorDef[]
+  walkableBounds?: Rect
+  blockedZones?: Rect[]
 }

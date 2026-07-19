@@ -1,7 +1,17 @@
 import type { ItemDef } from '../types'
 
 export const ITEMS: Record<string, ItemDef> = {
-  tissueBox: { id: 'tissueBox', locationId: 'bedroom', name: 'Tissue Box', x: 200, y: 300, color: 0xffffff },
+  // Open floor position, clear of every blockedZones rect (it previously
+  // sat on the table, inside a blocked zone, and was unreachable).
+  tissueBox: {
+    id: 'tissueBox',
+    locationId: 'bedroom',
+    name: 'Tissue Box',
+    x: 478,
+    y: 302,
+    color: 0xffffff,
+    texturePath: '/items/tissue_box.png',
+  },
 
   rope: { id: 'rope', locationId: 'backyard', name: 'Rope', x: 150, y: 220, color: 0xd4a373 },
   stuffedAnimal: { id: 'stuffedAnimal', locationId: 'backyard', name: 'Stuffed Animal', x: 620, y: 420, color: 0xf4a261 },

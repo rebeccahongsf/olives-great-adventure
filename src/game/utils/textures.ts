@@ -1,4 +1,9 @@
 import Phaser from 'phaser'
+import type { LocationId } from '../types'
+
+export function backgroundKey(locationId: LocationId) {
+  return `bg_${locationId}`
+}
 
 export function makeRectTexture(
   scene: Phaser.Scene,

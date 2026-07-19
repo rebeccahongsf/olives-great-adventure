@@ -2,6 +2,9 @@ import Phaser from 'phaser'
 import { useGameStore } from '../store/gameStore'
 import { makeCircleTexture, makeRectTexture } from '../utils/textures'
 import { PLAYER_ANIMATIONS, PLAYER_LOAD_FRAMES } from '../data/playerAnimations'
+import { LOCATIONS } from '../data/locations'
+import { ITEMS } from '../data/items'
+import { backgroundKey } from '../utils/textures'
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -11,6 +14,24 @@ export class PreloadScene extends Phaser.Scene {
   preload() {
     for (const frame of PLAYER_LOAD_FRAMES) {
       this.load.image(frame.key, frame.path)
+    }
+
+    const loadedKeys = new Set<string>()
+    for (const loc of Object.values(LOCATIONS)) {
+      if (loc.backgroundPath) {
+        this.load.image(backgroundKey(loc.id), loc.backgroundPath)
+      }
+      for (const piece of [...(loc.furniture ?? []), ...(loc.doors ?? [])]) {
+        if (loadedKeys.has(piece.key)) continue
+        loadedKeys.add(piece.key)
+        this.load.image(piece.key, piece.path)
+      }
+    }
+
+    for (const item of Object.values(ITEMS)) {
+      if (item.texturePath) {
+        this.load.image(item.id, item.texturePath)
+      }
     }
   }
 

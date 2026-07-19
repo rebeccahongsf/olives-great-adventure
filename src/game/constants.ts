@@ -10,3 +10,9 @@ export const INTERACT_DISTANCE = 48
 export const PLAYER_FRAME_SIZE = 96
 export const PLAYER_BODY_WIDTH = 40
 export const PLAYER_BODY_HEIGHT = 32
+
+// Items render above every furniture layer regardless of y-position: a
+// collectible is a small prop sitting on a surface (floor or furniture top),
+// not a walkable obstacle, so it should never be painted over by a piece of
+// furniture whose sortY happens to be higher.
+export const ITEM_DEPTH = 1000

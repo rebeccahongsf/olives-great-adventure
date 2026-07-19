@@ -14,7 +14,7 @@ export function createGameConfig(parent: HTMLElement): Phaser.Types.Core.GameCon
     pixelArt: true,
     physics: {
       default: 'arcade',
-      arcade: { gravity: { x: 0, y: 0 }, debug: false },
+      arcade: { gravity: { x: 0, y: 0 }, debug: true },
     },
     scene: [BootScene, PreloadScene, LocationScene],
   }

@@ -57,6 +57,8 @@ export class Player {
 
     const animKey = `player_${isMoving ? 'walk' : 'idle'}_${this.facing}`
     this.sprite.anims.play(animKey, true)
+
+    this.sprite.setDepth(this.sprite.y)
   }
 
   getFacing() {
