@@ -2,6 +2,10 @@ export const GAME_WIDTH = 800
 export const GAME_HEIGHT = 600
 export const PLAYER_SPEED = 160
 export const INTERACT_DISTANCE = 48
+// Doors get their own, larger interact radius (spec'd separately from NPCs)
+// since a door's interact point is measured from its center, and its sprite
+// is much taller than an NPC's.
+export const DOOR_INTERACT_DISTANCE = 80
 
 // Player sprite frames are 96x96 canvases with the character art occupying
 // roughly the bottom two-thirds. The physics body is inset to the character's

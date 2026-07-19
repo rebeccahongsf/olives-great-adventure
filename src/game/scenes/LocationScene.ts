@@ -3,7 +3,7 @@ import { useGameStore } from '../store/gameStore'
 import { LOCATIONS } from '../data/locations'
 import { ITEMS } from '../data/items'
 import { NPCS } from '../data/npcs'
-import { INTERACT_DISTANCE, ITEM_DEPTH } from '../constants'
+import { DOOR_INTERACT_DISTANCE, INTERACT_DISTANCE, ITEM_DEPTH } from '../constants'
 import type { DoorDef, FurnitureDef, LocationId, Rect } from '../types'
 import { Player } from '../entities/Player'
 import { backgroundKey } from '../utils/textures'
@@ -18,6 +18,7 @@ export class LocationScene extends Phaser.Scene {
   private npcSprites = new Map<string, Phaser.Physics.Arcade.Sprite>()
   private blockers?: Phaser.Physics.Arcade.StaticGroup
   private doors: DoorDef[] = []
+  private doorPrompts = new Map<DoorDef, Phaser.GameObjects.Text>()
   private interactKey!: Phaser.Input.Keyboard.Key
   private mapKey!: Phaser.Input.Keyboard.Key
   private doorKey!: Phaser.Input.Keyboard.Key
@@ -36,6 +37,7 @@ export class LocationScene extends Phaser.Scene {
     this.npcSprites = new Map()
     this.blockers = undefined
     this.doors = []
+    this.doorPrompts = new Map()
     this.nearestDoor = null
   }
 
@@ -53,7 +55,11 @@ export class LocationScene extends Phaser.Scene {
 
     this.spawnFurniture(loc.furniture ?? [])
     this.spawnDoors(loc.doors ?? [])
-    this.spawnBlockers(loc.blockedZones ?? [])
+
+    const doorBlockedZones: Rect[] = (loc.doors ?? [])
+      .filter((door) => door.blocksMovement)
+      .map((door) => ({ x: door.x, y: door.y, width: door.width, height: door.height }))
+    this.spawnBlockers([...(loc.blockedZones ?? []), ...doorBlockedZones])
 
     this.player = new Player(this, loc.playerSpawn.x, loc.playerSpawn.y)
     this.cameras.main.startFollow(this.player.sprite, true)
@@ -89,6 +95,23 @@ export class LocationScene extends Phaser.Scene {
     this.doors = doors
     for (const def of doors) {
       this.add.image(def.x, def.y, def.key).setOrigin(0, 0).setDepth(def.sortY)
+
+      if (def.interactive && def.promptText) {
+        const prompt = this.add
+          .text(def.x + def.width / 2, def.y - 6, def.promptText, {
+            fontFamily: 'monospace',
+            fontSize: '13px',
+            fontStyle: 'bold',
+            color: '#ffd166',
+            stroke: '#000000',
+            strokeThickness: 3,
+            align: 'center',
+          })
+          .setOrigin(0.5, 1)
+          .setDepth(2000)
+          .setVisible(false)
+        this.doorPrompts.set(def, prompt)
+      }
     }
   }
 
@@ -164,7 +187,7 @@ export class LocationScene extends Phaser.Scene {
 
   private updateNearestDoor() {
     let closest: DoorDef | null = null
-    let closestDist = INTERACT_DISTANCE
+    let closestDist = DOOR_INTERACT_DISTANCE
 
     for (const door of this.doors) {
       if (!door.interactive) continue
@@ -180,6 +203,9 @@ export class LocationScene extends Phaser.Scene {
       }
     }
 
+    if (closest === this.nearestDoor) return
+    if (this.nearestDoor) this.doorPrompts.get(this.nearestDoor)?.setVisible(false)
+    if (closest) this.doorPrompts.get(closest)?.setVisible(true)
     this.nearestDoor = closest
   }
 

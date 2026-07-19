@@ -13,7 +13,7 @@ export const LOCATION_ORDER: LocationId[] = [
 export const LOCATIONS: Record<LocationId, LocationDef> = {
   bedroom: {
     id: 'bedroom',
-    name: "Olive's Bedroom",
+    name: "Your Bedroom",
     width: 800,
     height: 600,
     backgroundColor: 0x3a2e39,
@@ -65,11 +65,13 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
         key: 'door_right',
         path: '/furniture/door_right.png',
         x: 628,
-        y: 100,
+        y: 80,
         width: 27,
         height: 182,
         sortY: 191,
         interactive: true,
+        promptText: 'Press SPACE to exit',
+        blocksMovement: true,
       },
       {
         key: 'door_right',
