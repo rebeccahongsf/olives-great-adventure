@@ -44,7 +44,7 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
     // 140x95, 175x83, 112x74) is larger than that box and was overflowing
     // the frame's right/bottom edge.
     furniture: [
-      { key: 'calender_purple', path: '/furniture/calender_purple.png', x: 450, y: 100, sortY: 144 },
+      { key: 'calendar_purple', path: '/furniture/calendar_purple.png', x: 450, y: 100, sortY: 144 },
       { key: 'bookshelf_down', path: '/furniture/bookshelf_down.png', x: 200, y: 70, sortY: 144 },
       { key: 'bed_left', path: '/furniture/bed_left.png', x: 151, y: 220, sortY: 322 },
       { key: 'dresser_right', path: '/furniture/dresser_right.png', x: 585, y: 275, sortY: 350 },
@@ -93,7 +93,7 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
     height: 600,
     backgroundColor: 0x2d4a2d,
     backgroundPath: '/background/backyard_base.png',
-    playerSpawn: { x: 400, y: 300 },
+    playerSpawn: { x: 555, y: 400 },
     items: ['duckToy', 'blueBall'],
     npcs: ['momIntro'],
     puzzleId: 'backyardPuzzle',
@@ -105,7 +105,7 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
     // piece's actual PNG height / 2, per the pattern established in
     // bedroom above.
     blockedZones: [
-      { x: 331, y: 432, width: 104, height: 56 }, // dog_house
+      { x: 331, y: 440, width: 104, height: 50 }, // dog_house
       { x: 404, y: 307, width: 32, height: 27 }, // outdoor_chair
       { x: 435, y: 289, width: 38, height: 45 }, // outdoor_table
       { x: 444, y: 247, width: 75, height: 36 }, // long_planters

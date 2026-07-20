@@ -78,7 +78,7 @@ export const useGameStore = create<GameState>((set, get) => {
     // positions without replaying the bedroom puzzle first. Revert to
     // 'bedroom' (and LOCATIONS.bedroom.entryHint / ['bedroom'] below)
     // before shipping.
-    currentLocation: 'bedroom',
+    currentLocation: 'backyard',
     collectedItems: {},
     completedPuzzles: {},
     unlockedMemories: [],
