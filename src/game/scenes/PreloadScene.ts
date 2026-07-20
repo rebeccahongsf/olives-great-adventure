@@ -4,6 +4,7 @@ import { makeCircleTexture, makeRectTexture } from '../utils/textures'
 import { PLAYER_ANIMATIONS, PLAYER_LOAD_FRAMES } from '../data/playerAnimations'
 import { LOCATIONS } from '../data/locations'
 import { ITEMS } from '../data/items'
+import { NPCS } from '../data/npcs'
 import { backgroundKey } from '../utils/textures'
 
 export class PreloadScene extends Phaser.Scene {
@@ -33,6 +34,12 @@ export class PreloadScene extends Phaser.Scene {
         this.load.image(item.id, item.texturePath)
       }
     }
+
+    for (const npc of Object.values(NPCS)) {
+      for (const frame of npc.idleFrames ?? []) {
+        this.load.image(frame.key, frame.path)
+      }
+    }
   }
 
   create() {
@@ -45,6 +52,16 @@ export class PreloadScene extends Phaser.Scene {
         frames: anim.frameKeys.map((key) => ({ key })),
         frameRate: anim.frameRate,
         repeat: anim.repeat,
+      })
+    }
+
+    for (const npc of Object.values(NPCS)) {
+      if (!npc.idleFrames || npc.idleFrames.length === 0) continue
+      this.anims.create({
+        key: `npc_${npc.id}_idle`,
+        frames: npc.idleFrames.map((f) => ({ key: f.key })),
+        frameRate: 2,
+        repeat: -1,
       })
     }
 

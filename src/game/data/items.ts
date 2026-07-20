@@ -13,8 +13,24 @@ export const ITEMS: Record<string, ItemDef> = {
     texturePath: '/items/tissue_box.png',
   },
 
-  rope: { id: 'rope', locationId: 'backyard', name: 'Rope', x: 150, y: 220, color: 0xd4a373 },
-  stuffedAnimal: { id: 'stuffedAnimal', locationId: 'backyard', name: 'Stuffed Animal', x: 620, y: 420, color: 0xf4a261 },
+  duckToy: {
+    id: 'duckToy',
+    locationId: 'backyard',
+    name: 'Duck Toy',
+    x: 192,
+    y: 454,
+    color: 0xf4a261,
+    texturePath: '/items/duck_toy.png',
+  },
+  blueBall: {
+    id: 'blueBall',
+    locationId: 'backyard',
+    name: 'Blue Ball',
+    x: 433,
+    y: 265,
+    color: 0x4d96ff,
+    texturePath: '/items/blue_ball.png',
+  },
 
   coffeeMug: { id: 'coffeeMug', locationId: 'kitchen', name: "Dad's Coffee Mug", x: 550, y: 220, color: 0x774936 },
 

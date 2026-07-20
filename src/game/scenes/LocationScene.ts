@@ -3,6 +3,7 @@ import { useGameStore } from '../store/gameStore'
 import { LOCATIONS } from '../data/locations'
 import { ITEMS } from '../data/items'
 import { NPCS } from '../data/npcs'
+import { DIALOG_TREES } from '../data/dialog'
 import { DOOR_INTERACT_DISTANCE, INTERACT_DISTANCE, ITEM_DEPTH } from '../constants'
 import type { DoorDef, FurnitureDef, LocationId, Rect } from '../types'
 import { Player } from '../entities/Player'
@@ -153,7 +154,17 @@ export class LocationScene extends Phaser.Scene {
   private spawnNpcs(npcIds: string[]) {
     for (const npcId of npcIds) {
       const def = NPCS[npcId]
-      const sprite = this.physics.add.sprite(def.x, def.y, 'npc').setTint(def.color)
+      const hasArt = !!def.idleFrames?.length
+      const sprite = this.physics.add.sprite(def.x, def.y, hasArt ? def.idleFrames![0].key : 'npc')
+      if (hasArt) {
+        sprite.anims.play(`npc_${npcId}_idle`)
+      } else {
+        sprite.setTint(def.color)
+      }
+      if (def.bodyWidth && def.bodyHeight) {
+        sprite.setSize(def.bodyWidth, def.bodyHeight)
+        sprite.setOffset(def.bodyOffsetX ?? 0, def.bodyOffsetY ?? 0)
+      }
       sprite.setDepth(def.y)
       this.npcSprites.set(npcId, sprite)
       if (!def.followsPlayer) {
@@ -171,7 +182,7 @@ export class LocationScene extends Phaser.Scene {
 
     const store = useGameStore.getState()
 
-    if (Phaser.Input.Keyboard.JustDown(this.interactKey) && this.nearestNpcId) {
+    if (Phaser.Input.Keyboard.JustDown(this.interactKey) && this.nearestNpcId && !store.activeDialog) {
       const npc = NPCS[this.nearestNpcId]
       store.startDialog(npc.id, npc.dialogTreeId)
     }
@@ -180,8 +191,15 @@ export class LocationScene extends Phaser.Scene {
       store.toggleMap(true)
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.doorKey) && this.nearestDoor && !store.activeDialog) {
-      store.toggleMap(true)
+    if (Phaser.Input.Keyboard.JustDown(this.doorKey)) {
+      if (store.activeDialog) {
+        const node = DIALOG_TREES[store.activeDialog.treeId].nodes[store.activeDialog.nodeId]
+        if (!node.choices) {
+          node.next ? store.advanceDialog() : store.closeDialog()
+        }
+      } else if (this.nearestDoor) {
+        store.toggleMap(true)
+      }
     }
   }
 

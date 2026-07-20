@@ -1,6 +1,53 @@
 import type { DialogTree } from '../types'
 
 export const DIALOG_TREES: Record<string, DialogTree> = {
+  // Progresses one stage per separate approach (talk, walk away, talk again)
+  // rather than all at once in a single conversation: each node sets the
+  // flag for "where to resume" as soon as it's entered, and entryPoints
+  // routes the next startDialog call there. See DialogEntryPoint in types.ts.
+  momIntro: {
+    id: 'momIntro',
+    startNodeId: 'greeting',
+    entryPoints: [
+      { flag: 'momIntroBusy', nodeId: 'busy' },
+      { flag: 'momIntroChoices', nodeId: 'askChoices' },
+      { flag: 'momIntroTea', nodeId: 'tea' },
+    ],
+    nodes: {
+      greeting: {
+        id: 'greeting',
+        speaker: 'Mom',
+        text: 'Good morning!',
+        onEnter: { setFlags: ['momIntroTea'] },
+      },
+      tea: {
+        id: 'tea',
+        speaker: 'Mom',
+        text: "I'm just enjoying my tea and plants.",
+        onEnter: { setFlags: ['momIntroChoices'] },
+      },
+      askChoices: {
+        id: 'askChoices',
+        speaker: 'Mom',
+        text: 'What do you need?',
+        choices: [
+          { text: "I'm looking for Olive, have you seen her?", next: 'oliveAnswer' },
+          { text: 'Nothing', next: 'askChoices' },
+        ],
+      },
+      oliveAnswer: {
+        id: 'oliveAnswer',
+        speaker: 'Mom',
+        text: "Hm. Not sure. Try asking dad. He's in the kitchen.",
+        onEnter: { setFlags: ['momIntroBusy'], hint: "Try asking Dad — he's in the kitchen." },
+      },
+      busy: {
+        id: 'busy',
+        speaker: 'Mom',
+        text: '...',
+      },
+    },
+  },
   dadKitchen: {
     id: 'dadKitchen',
     startNodeId: 'start',

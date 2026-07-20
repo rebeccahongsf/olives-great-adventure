@@ -88,10 +88,30 @@ export interface DialogNode {
   onEnter?: DialogNodeEffects
 }
 
+// Lets a tree resume past its normal startNodeId on a later approach instead
+// of always replaying from the top. Checked in order the first time a tree
+// is entered (see gameStore.startDialog); the first entry whose flag is set
+// wins. List entries most-advanced-flag-first, since an NPC conversation
+// that has progressed several stages will have every earlier stage's flag
+// set too.
+export interface DialogEntryPoint {
+  flag: string
+  nodeId: string
+}
+
 export interface DialogTree {
   id: string
   startNodeId: string
+  entryPoints?: DialogEntryPoint[]
   nodes: Record<string, DialogNode>
+}
+
+// Real NPC art, loaded and looped the same way as furniture (see
+// PreloadScene). Omit idleFrames to fall back to the flat-colored 'npc'
+// rect placeholder tinted by `color`.
+export interface NpcSpriteFrame {
+  key: string
+  path: string
 }
 
 export interface NpcDef {
@@ -103,6 +123,15 @@ export interface NpcDef {
   color: number
   dialogTreeId: string
   followsPlayer?: boolean
+  idleFrames?: NpcSpriteFrame[]
+  // Physics body override, mirroring PLAYER_BODY_WIDTH/HEIGHT in
+  // constants.ts: shrinks/offsets the collision box from the full sprite
+  // frame down to the character's actual footprint. Offsets are measured
+  // from the frame's top-left corner, matching Phaser's Arcade body offset.
+  bodyWidth?: number
+  bodyHeight?: number
+  bodyOffsetX?: number
+  bodyOffsetY?: number
 }
 
 export interface PuzzleDef {

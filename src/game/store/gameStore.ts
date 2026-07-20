@@ -74,17 +74,21 @@ export const useGameStore = create<GameState>((set, get) => {
   }
 
   return {
+    // DEV: jumped straight to 'backyard' to iterate on item/furniture
+    // positions without replaying the bedroom puzzle first. Revert to
+    // 'bedroom' (and LOCATIONS.bedroom.entryHint / ['bedroom'] below)
+    // before shipping.
     currentLocation: 'bedroom',
     collectedItems: {},
     completedPuzzles: {},
     unlockedMemories: [],
     flags: {},
     activeDialog: null,
-    activeHint: LOCATIONS.bedroom.entryHint ?? null,
+    activeHint: LOCATIONS.backyard.entryHint ?? null,
     interactTarget: null,
     galleryOpen: false,
     mapOpen: false,
-    visitedLocations: ['bedroom'],
+    visitedLocations: ['backyard'],
 
     goToLocation: (id) => {
       const loc = LOCATIONS[id]
@@ -117,7 +121,9 @@ export const useGameStore = create<GameState>((set, get) => {
     },
 
     startDialog: (npcId, treeId) => {
-      enterDialogNode(treeId, DIALOG_TREES[treeId].startNodeId, npcId)
+      const tree = DIALOG_TREES[treeId]
+      const entry = tree.entryPoints?.find((e) => get().flags[e.flag])
+      enterDialogNode(treeId, entry?.nodeId ?? tree.startNodeId, npcId)
     },
 
     chooseDialogOption: (choiceIndex) => {

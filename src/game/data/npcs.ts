@@ -1,6 +1,23 @@
 import type { NpcDef } from '../types'
 
 export const NPCS: Record<string, NpcDef> = {
+  momIntro: {
+    id: 'momIntro',
+    locationId: 'backyard',
+    name: 'Mom',
+    x: 500,
+    y: 298,
+    color: 0xb5838d,
+    dialogTreeId: 'momIntro',
+    idleFrames: [
+      { key: 'mom_idle_01', path: '/sprites/npcs/mom/mom_idle_01.png' },
+      { key: 'mom_idle_02', path: '/sprites/npcs/mom/mom_idle_02.png' },
+    ],
+    bodyWidth: 43,
+    bodyHeight: 84,
+    bodyOffsetX: 25,
+    bodyOffsetY: 0,
+  },
   dad: {
     id: 'dad',
     locationId: 'kitchen',
