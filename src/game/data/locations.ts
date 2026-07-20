@@ -72,7 +72,7 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
         height: 182,
         sortY: 191,
         interactive: true,
-        promptText: 'Press SPACE to exit',
+        promptText: 'Press E to exit',
         blocksMovement: true,
       },
       {
@@ -105,6 +105,9 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
     // piece's actual PNG height / 2, per the pattern established in
     // bedroom above.
     blockedZones: [
+      { x: 162, y: 170, width: 91, height: 198 }, // garden_box_left
+      { x: 555, y: 170, width: 91, height: 198 }, // garden_box_right
+      { x: 256, y: 170, width: 300, height: 85 }, // garden_box_middle
       { x: 331, y: 440, width: 104, height: 50 }, // dog_house
       { x: 404, y: 307, width: 32, height: 27 }, // outdoor_chair
       { x: 435, y: 289, width: 38, height: 45 }, // outdoor_table
@@ -142,7 +145,7 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
         height: 14,
         sortY: 490,
         interactive: true,
-        promptText: 'Press SPACE to exit',
+        promptText: 'Press E to exit',
         blocksMovement: true,
       },
     ],

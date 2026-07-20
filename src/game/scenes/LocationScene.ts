@@ -4,7 +4,7 @@ import { LOCATIONS } from '../data/locations'
 import { ITEMS } from '../data/items'
 import { NPCS } from '../data/npcs'
 import { DIALOG_TREES } from '../data/dialog'
-import { DOOR_INTERACT_DISTANCE, INTERACT_DISTANCE, ITEM_DEPTH } from '../constants'
+import { DOOR_INTERACT_DISTANCE, INTERACT_DISTANCE, ITEM_DEPTH, ITEM_INTERACT_DISTANCE } from '../constants'
 import type { DoorDef, FurnitureDef, LocationId, Rect } from '../types'
 import { Player } from '../entities/Player'
 import { backgroundKey } from '../utils/textures'
@@ -22,8 +22,11 @@ export class LocationScene extends Phaser.Scene {
   private doorPrompts = new Map<DoorDef, Phaser.GameObjects.Text>()
   private interactKey!: Phaser.Input.Keyboard.Key
   private mapKey!: Phaser.Input.Keyboard.Key
-  private doorKey!: Phaser.Input.Keyboard.Key
+  private spaceKey!: Phaser.Input.Keyboard.Key
+  private choiceUpKey!: Phaser.Input.Keyboard.Key
+  private choiceDownKey!: Phaser.Input.Keyboard.Key
   private nearestNpcId: string | null = null
+  private nearestItemId: string | null = null
   private nearestDoor: DoorDef | null = null
   private locationId!: LocationId
   private unsubscribe?: () => void
@@ -39,6 +42,8 @@ export class LocationScene extends Phaser.Scene {
     this.blockers = undefined
     this.doors = []
     this.doorPrompts = new Map()
+    this.nearestNpcId = null
+    this.nearestItemId = null
     this.nearestDoor = null
   }
 
@@ -74,7 +79,9 @@ export class LocationScene extends Phaser.Scene {
 
     this.interactKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E)
     this.mapKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.M)
-    this.doorKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+    this.spaceKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+    this.choiceUpKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.UP)
+    this.choiceDownKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN)
 
     this.unsubscribe = useGameStore.subscribe((state, prevState) => {
       if (state.collectedItems !== prevState.collectedItems) {
@@ -136,9 +143,6 @@ export class LocationScene extends Phaser.Scene {
       if (!hasTexture) sprite.setTint(def.color)
       sprite.setDepth(ITEM_DEPTH)
       this.itemSprites.set(itemId, sprite)
-      this.physics.add.overlap(this.player.sprite, sprite, () => {
-        useGameStore.getState().collectItem(itemId)
-      })
     }
   }
 
@@ -147,6 +151,7 @@ export class LocationScene extends Phaser.Scene {
     for (const [itemId, sprite] of this.itemSprites) {
       if (collected[itemId] && sprite.active) {
         sprite.destroy()
+        if (this.nearestItemId === itemId) this.nearestItemId = null
       }
     }
   }
@@ -177,29 +182,44 @@ export class LocationScene extends Phaser.Scene {
   update() {
     this.player.update()
     this.updateNearestNpc()
+    this.updateNearestItem()
     this.updateNearestDoor()
     this.updateFollowingNpcs()
+    this.updateInteractPrompt()
 
     const store = useGameStore.getState()
 
-    if (Phaser.Input.Keyboard.JustDown(this.interactKey) && this.nearestNpcId && !store.activeDialog) {
-      const npc = NPCS[this.nearestNpcId]
-      store.startDialog(npc.id, npc.dialogTreeId)
-    }
+    if (store.activeDialog) {
+      const node = DIALOG_TREES[store.activeDialog.treeId].nodes[store.activeDialog.nodeId]
 
-    if (Phaser.Input.Keyboard.JustDown(this.mapKey) && !store.activeDialog) {
-      store.toggleMap(true)
-    }
+      if (node.choices) {
+        if (Phaser.Input.Keyboard.JustDown(this.choiceUpKey)) store.moveChoiceSelection(-1)
+        if (Phaser.Input.Keyboard.JustDown(this.choiceDownKey)) store.moveChoiceSelection(1)
+      }
 
-    if (Phaser.Input.Keyboard.JustDown(this.doorKey)) {
-      if (store.activeDialog) {
-        const node = DIALOG_TREES[store.activeDialog.treeId].nodes[store.activeDialog.nodeId]
-        if (!node.choices) {
+      if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+        if (node.choices) {
+          store.chooseDialogOption(store.selectedChoiceIndex)
+        } else {
           node.next ? store.advanceDialog() : store.closeDialog()
         }
+      }
+      return
+    }
+
+    if (Phaser.Input.Keyboard.JustDown(this.interactKey)) {
+      if (this.nearestNpcId) {
+        const npc = NPCS[this.nearestNpcId]
+        store.startDialog(npc.id, npc.dialogTreeId)
+      } else if (this.nearestItemId) {
+        store.collectItem(this.nearestItemId)
       } else if (this.nearestDoor) {
         store.toggleMap(true)
       }
+    }
+
+    if (Phaser.Input.Keyboard.JustDown(this.mapKey)) {
+      store.toggleMap(true)
     }
   }
 
@@ -227,6 +247,22 @@ export class LocationScene extends Phaser.Scene {
     this.nearestDoor = closest
   }
 
+  private updateNearestItem() {
+    let closest: string | null = null
+    let closestDist = ITEM_INTERACT_DISTANCE
+
+    for (const [itemId, sprite] of this.itemSprites) {
+      if (!sprite.active) continue
+      const dist = Phaser.Math.Distance.Between(this.player.sprite.x, this.player.sprite.y, sprite.x, sprite.y)
+      if (dist < closestDist) {
+        closestDist = dist
+        closest = itemId
+      }
+    }
+
+    this.nearestItemId = closest
+  }
+
   private updateNearestNpc() {
     let closest: string | null = null
     let closestDist = INTERACT_DISTANCE
@@ -244,10 +280,20 @@ export class LocationScene extends Phaser.Scene {
       }
     }
 
-    if (closest !== this.nearestNpcId) {
-      this.nearestNpcId = closest
-      useGameStore.getState().setInteractTarget(closest ? NPCS[closest].name : null)
+    this.nearestNpcId = closest
+  }
+
+  // Mirrors the E-key priority in update() (NPC talk > item collect > door
+  // exit) so the HUD prompt always names whichever action E will actually
+  // trigger.
+  private updateInteractPrompt() {
+    let prompt: string | null = null
+    if (this.nearestNpcId) {
+      prompt = `Press E to talk to ${NPCS[this.nearestNpcId].name}`
+    } else if (this.nearestItemId) {
+      prompt = `Press E to collect ${ITEMS[this.nearestItemId].name}`
     }
+    useGameStore.getState().setInteractPrompt(prompt)
   }
 
   private updateFollowingNpcs() {

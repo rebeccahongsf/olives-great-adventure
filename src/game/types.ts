@@ -49,7 +49,7 @@ export interface ItemDef {
 }
 
 // Doors reuse the furniture rendering path (cropped art, top-left position,
-// sortY depth) plus an optional SPACE-to-interact zone sized to the sprite.
+// sortY depth) plus an optional E-to-interact zone sized to the sprite.
 // promptText is shown floating above the door while the player is in range;
 // only meaningful when interactive is true. blocksMovement, if set, blocks
 // the door's own x/y/width/height rect (no separate blockedZones entry

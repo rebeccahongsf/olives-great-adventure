@@ -4,7 +4,7 @@ import { MEMORIES } from '../../game/data/memories'
 
 export function HUD() {
   const currentLocation = useGameStore((s) => s.currentLocation)
-  const interactTarget = useGameStore((s) => s.interactTarget)
+  const interactPrompt = useGameStore((s) => s.interactPrompt)
   const unlockedMemories = useGameStore((s) => s.unlockedMemories)
   const activeDialog = useGameStore((s) => s.activeDialog)
   const toggleGallery = useGameStore((s) => s.toggleGallery)
@@ -13,7 +13,7 @@ export function HUD() {
   return (
     <div className="hud">
       <div className="hud-location">{LOCATIONS[currentLocation].name}</div>
-      {interactTarget && <div className="hud-interact">Press E to talk to {interactTarget}</div>}
+      {interactPrompt && <div className="hud-interact">{interactPrompt}</div>}
       <div className="hud-buttons">
         <button
           className="hud-map-btn"

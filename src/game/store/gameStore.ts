@@ -17,8 +17,9 @@ interface GameState {
   unlockedMemories: string[]
   flags: Record<string, boolean>
   activeDialog: ActiveDialog | null
+  selectedChoiceIndex: number
   activeHint: string | null
-  interactTarget: string | null
+  interactPrompt: string | null
   galleryOpen: boolean
   mapOpen: boolean
   visitedLocations: LocationId[]
@@ -27,12 +28,13 @@ interface GameState {
   collectItem: (itemId: string) => void
   startDialog: (npcId: string, treeId: string) => void
   chooseDialogOption: (choiceIndex: number) => void
+  moveChoiceSelection: (delta: number) => void
   advanceDialog: () => void
   closeDialog: () => void
   showHint: (text: string) => void
   clearHint: () => void
   setFlag: (key: string, value?: boolean) => void
-  setInteractTarget: (name: string | null) => void
+  setInteractPrompt: (text: string | null) => void
   toggleGallery: (open?: boolean) => void
   toggleMap: (open?: boolean) => void
 }
@@ -56,7 +58,7 @@ export const useGameStore = create<GameState>((set, get) => {
   function enterDialogNode(treeId: string, nodeId: string, npcId: string) {
     const node = DIALOG_TREES[treeId].nodes[nodeId]
     applyNodeEffects(node)
-    set({ activeDialog: { treeId, nodeId, npcId } })
+    set({ activeDialog: { treeId, nodeId, npcId }, selectedChoiceIndex: 0 })
   }
 
   function applyNodeEffects(node: DialogNode) {
@@ -84,8 +86,9 @@ export const useGameStore = create<GameState>((set, get) => {
     unlockedMemories: [],
     flags: {},
     activeDialog: null,
+    selectedChoiceIndex: 0,
     activeHint: LOCATIONS.backyard.entryHint ?? null,
-    interactTarget: null,
+    interactPrompt: null,
     galleryOpen: false,
     mapOpen: false,
     visitedLocations: ['backyard'],
@@ -95,7 +98,7 @@ export const useGameStore = create<GameState>((set, get) => {
       set((state) => ({
         currentLocation: id,
         activeHint: loc.entryHint ?? null,
-        interactTarget: null,
+        interactPrompt: null,
         visitedLocations: state.visitedLocations.includes(id)
           ? state.visitedLocations
           : [...state.visitedLocations, id],
@@ -140,6 +143,15 @@ export const useGameStore = create<GameState>((set, get) => {
       enterDialogNode(activeDialog.treeId, choice.next, activeDialog.npcId)
     },
 
+    moveChoiceSelection: (delta) => {
+      const { activeDialog, selectedChoiceIndex } = get()
+      if (!activeDialog) return
+      const node = DIALOG_TREES[activeDialog.treeId].nodes[activeDialog.nodeId]
+      const choices = node.choices
+      if (!choices || choices.length === 0) return
+      set({ selectedChoiceIndex: (selectedChoiceIndex + delta + choices.length) % choices.length })
+    },
+
     advanceDialog: () => {
       const { activeDialog } = get()
       if (!activeDialog) return
@@ -158,7 +170,7 @@ export const useGameStore = create<GameState>((set, get) => {
 
     setFlag: (key, value = true) => set((state) => ({ flags: { ...state.flags, [key]: value } })),
 
-    setInteractTarget: (name) => set({ interactTarget: name }),
+    setInteractPrompt: (text) => set({ interactPrompt: text }),
 
     toggleGallery: (open) => set((state) => ({ galleryOpen: open ?? !state.galleryOpen })),
 
