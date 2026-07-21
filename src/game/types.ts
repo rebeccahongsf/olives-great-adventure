@@ -34,6 +34,23 @@ export interface FurnitureDef {
   sortY: number
 }
 
+// Fired once, the moment an item is collected (LocationScene.triggerCollectEvent).
+// Every field is optional and independent: a sound with no floating text is
+// fine, floating text with no sound is fine, etc.
+export interface ItemCollectEvent {
+  // key must be unique across all items' collect sounds; loaded from `path`
+  // in PreloadScene and played via this.sound.play(key). Silently skipped if
+  // the asset failed to load (or was never added), so it's safe to wire up
+  // sound/text/hint before the audio file exists.
+  sound?: { key: string; path: string }
+  // World-space text that rises and fades at a fixed point (e.g. a door the
+  // sound seems to come from), independent of the item's own x/y.
+  floatingText?: { text: string; x: number; y: number }
+  // Replaces the on-screen hint/thought toast (same channel as
+  // DialogNodeEffects.hint and LocationDef.entryHint).
+  hint?: string
+}
+
 // x/y is the item's pickup hotspot: the pickup hitbox is centered there, and
 // (art is cropped to the item's own bounding box) it's also the sprite's
 // draw position, same as the flat-color fallback used when texturePath is
@@ -46,6 +63,13 @@ export interface ItemDef {
   y: number
   color: number
   texturePath?: string
+  // Thought-bubble text shown while the player is within proximityDistance
+  // (default ITEM_PROXIMITY_DISTANCE) but hasn't collected the item yet.
+  // Independent of the "Press E to collect" HUD prompt, which uses the
+  // tighter ITEM_INTERACT_DISTANCE.
+  proximityText?: string
+  proximityDistance?: number
+  onCollect?: ItemCollectEvent
 }
 
 // Doors reuse the furniture rendering path (cropped art, top-left position,

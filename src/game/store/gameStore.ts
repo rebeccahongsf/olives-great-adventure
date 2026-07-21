@@ -19,6 +19,7 @@ interface GameState {
   activeDialog: ActiveDialog | null
   selectedChoiceIndex: number
   activeHint: string | null
+  proximityText: string | null
   interactPrompt: string | null
   galleryOpen: boolean
   mapOpen: boolean
@@ -33,6 +34,7 @@ interface GameState {
   closeDialog: () => void
   showHint: (text: string) => void
   clearHint: () => void
+  setProximityText: (text: string | null) => void
   setFlag: (key: string, value?: boolean) => void
   setInteractPrompt: (text: string | null) => void
   toggleGallery: (open?: boolean) => void
@@ -80,18 +82,19 @@ export const useGameStore = create<GameState>((set, get) => {
     // positions without replaying the bedroom puzzle first. Revert to
     // 'bedroom' (and LOCATIONS.bedroom.entryHint / ['bedroom'] below)
     // before shipping.
-    currentLocation: 'backyard',
+    currentLocation: 'bedroom',
     collectedItems: {},
     completedPuzzles: {},
     unlockedMemories: [],
     flags: {},
     activeDialog: null,
     selectedChoiceIndex: 0,
-    activeHint: LOCATIONS.backyard.entryHint ?? null,
+    activeHint: LOCATIONS.bedroom.entryHint ?? null,
+    proximityText: null,
     interactPrompt: null,
     galleryOpen: false,
     mapOpen: false,
-    visitedLocations: ['backyard'],
+    visitedLocations: ['bedroom'],
 
     goToLocation: (id) => {
       const loc = LOCATIONS[id]
@@ -167,6 +170,7 @@ export const useGameStore = create<GameState>((set, get) => {
 
     showHint: (text) => set({ activeHint: text }),
     clearHint: () => set({ activeHint: null }),
+    setProximityText: (text) => set({ proximityText: text }),
 
     setFlag: (key, value = true) => set((state) => ({ flags: { ...state.flags, [key]: value } })),
 

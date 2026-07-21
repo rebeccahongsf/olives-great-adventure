@@ -10,6 +10,10 @@ export const DOOR_INTERACT_DISTANCE = 80
 // keeps the "Press E to collect" prompt from lighting up before the player
 // is actually standing next to the item.
 export const ITEM_INTERACT_DISTANCE = 40
+// Radius for an item's proximity thought-bubble (ItemDef.proximityText) —
+// deliberately wider than ITEM_INTERACT_DISTANCE so the "what's this doing
+// here" musing reads before the player is close enough to collect.
+export const ITEM_PROXIMITY_DISTANCE = 80
 
 // Player sprite frames are 96x96 canvases with the character art occupying
 // roughly the bottom two-thirds. The physics body is inset to the character's

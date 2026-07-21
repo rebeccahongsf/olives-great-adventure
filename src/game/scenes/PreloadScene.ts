@@ -33,6 +33,9 @@ export class PreloadScene extends Phaser.Scene {
       if (item.texturePath) {
         this.load.image(item.id, item.texturePath)
       }
+      if (item.onCollect?.sound) {
+        this.load.audio(item.onCollect.sound.key, item.onCollect.sound.path)
+      }
     }
 
     for (const npc of Object.values(NPCS)) {

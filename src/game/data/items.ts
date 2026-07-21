@@ -11,6 +11,15 @@ export const ITEMS: Record<string, ItemDef> = {
     y: 302,
     color: 0xffffff,
     texturePath: '/items/tissue_box.png',
+    proximityText: 'Hm, I wonder why the tissue box is on the floor...',
+    onCollect: {
+      sound: { key: 'bark', path: '/sounds/bark.mp3' },
+      // Bedroom's interactive exit door (locations.ts: door_right at
+      // x:628,y:80,w:27,h:182) — same spot its "Press E to exit" prompt
+      // floats, so the bark reads as coming from just outside that door.
+      floatingText: { text: 'WOOF!', x: 641, y: 74 },
+      hint: 'I hear Olive barking outside!',
+    },
   },
 
   duckToy: {

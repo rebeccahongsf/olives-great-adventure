@@ -4,7 +4,13 @@ import { LOCATIONS } from '../data/locations'
 import { ITEMS } from '../data/items'
 import { NPCS } from '../data/npcs'
 import { DIALOG_TREES } from '../data/dialog'
-import { DOOR_INTERACT_DISTANCE, INTERACT_DISTANCE, ITEM_DEPTH, ITEM_INTERACT_DISTANCE } from '../constants'
+import {
+  DOOR_INTERACT_DISTANCE,
+  INTERACT_DISTANCE,
+  ITEM_DEPTH,
+  ITEM_INTERACT_DISTANCE,
+  ITEM_PROXIMITY_DISTANCE,
+} from '../constants'
 import type { DoorDef, FurnitureDef, LocationId, Rect } from '../types'
 import { Player } from '../entities/Player'
 import { backgroundKey } from '../utils/textures'
@@ -186,6 +192,7 @@ export class LocationScene extends Phaser.Scene {
     this.updateNearestDoor()
     this.updateFollowingNpcs()
     this.updateInteractPrompt()
+    this.updateItemProximityText()
 
     const store = useGameStore.getState()
 
@@ -212,7 +219,9 @@ export class LocationScene extends Phaser.Scene {
         const npc = NPCS[this.nearestNpcId]
         store.startDialog(npc.id, npc.dialogTreeId)
       } else if (this.nearestItemId) {
-        store.collectItem(this.nearestItemId)
+        const itemId = this.nearestItemId
+        store.collectItem(itemId)
+        this.triggerCollectEvent(itemId)
       } else if (this.nearestDoor) {
         store.toggleMap(true)
       }
@@ -294,6 +303,71 @@ export class LocationScene extends Phaser.Scene {
       prompt = `Press E to collect ${ITEMS[this.nearestItemId].name}`
     }
     useGameStore.getState().setInteractPrompt(prompt)
+  }
+
+  // Thought-bubble popup (ItemDef.proximityText), independent of the
+  // "Press E to collect" HUD prompt: wider radius, and stays up the whole
+  // time the player lingers nearby rather than firing once.
+  private updateItemProximityText() {
+    let closest: string | null = null
+    let closestDist = Infinity
+
+    for (const [itemId, sprite] of this.itemSprites) {
+      if (!sprite.active) continue
+      const def = ITEMS[itemId]
+      if (!def.proximityText) continue
+      const radius = def.proximityDistance ?? ITEM_PROXIMITY_DISTANCE
+      const dist = Phaser.Math.Distance.Between(this.player.sprite.x, this.player.sprite.y, sprite.x, sprite.y)
+      if (dist < radius && dist < closestDist) {
+        closestDist = dist
+        closest = def.proximityText
+      }
+    }
+
+    useGameStore.getState().setProximityText(closest)
+  }
+
+  // Runs once, right as an item is collected (see the E-key handler in
+  // update()). Each part of ItemDef.onCollect is independent and optional.
+  private triggerCollectEvent(itemId: string) {
+    const onCollect = ITEMS[itemId].onCollect
+    if (!onCollect) return
+
+    if (onCollect.sound && this.cache.audio.exists(onCollect.sound.key)) {
+      this.sound.play(onCollect.sound.key)
+    }
+    if (onCollect.floatingText) {
+      const { text, x, y } = onCollect.floatingText
+      this.spawnFloatingText(text, x, y)
+    }
+    if (onCollect.hint) {
+      useGameStore.getState().showHint(onCollect.hint)
+    }
+  }
+
+  // Rises and fades at a fixed world position, then removes itself — used
+  // for things like an offscreen bark reading as coming from a door.
+  private spawnFloatingText(text: string, x: number, y: number) {
+    const label = this.add
+      .text(x, y, text, {
+        fontFamily: 'monospace',
+        fontSize: '16px',
+        fontStyle: 'bold',
+        color: '#ffd166',
+        stroke: '#000000',
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5, 1)
+      .setDepth(3000)
+
+    this.tweens.add({
+      targets: label,
+      y: y - 30,
+      alpha: 0,
+      duration: 1800,
+      ease: 'Cubic.easeOut',
+      onComplete: () => label.destroy(),
+    })
   }
 
   private updateFollowingNpcs() {
